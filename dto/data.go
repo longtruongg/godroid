@@ -7,4 +7,7 @@ var (
 
 func init() {
 	TokenList = append(TokenList, "ETHUSDT")
+	TokenList = append(TokenList, "NEARUSDT")
+	TokenList = append(TokenList, "SOLUSDT")
+	TokenList = append(TokenList, "DOTUSDT")
 }

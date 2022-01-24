@@ -23,3 +23,17 @@ func GetTokenPair(url string, token string) (pair *dto.TokenPair, err error){
 
 	return pair, nil
 }
+
+func CalculateSmaAvg(list []float64, num int) (smaAvg float64) {
+	for i := 0; i < len(list); i++ {
+		smaAvg += list[i]
+	}
+	switch num {
+	case 5:
+		smaAvg = smaAvg/5
+	case 10:
+		smaAvg = smaAvg/10
+	}
+
+	return smaAvg
+}
