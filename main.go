@@ -8,6 +8,7 @@ import (
 )
 
 func main() {
+	tokenList := initTokenPairs()
 	ticker := time.NewTicker(5 * time.Second)
 	done := make(chan bool)
 
@@ -18,7 +19,7 @@ func main() {
 				return
 			case t := <-ticker.C:
 				fmt.Println("Tick at", t)
-				getTokenPrice()
+				getTokenPrice(tokenList)
 			}
 		}
 	}()
@@ -29,18 +30,34 @@ func main() {
 	fmt.Println("Ticker stopped")
 }
 
+func initTokenPairs() []*dto.TokenPair{
+	var tokenList []*dto.TokenPair
+	for _, symbol := range dto.TokenList {
+		tok := dto.TokenPair{Symbol: symbol}
+		tokenList = append(tokenList, &tok)
+	}
+	return tokenList
+}
+
 func waitForerver() {
 	select {}
 }
 
-func getTokenPrice(){
-	for _, value := range dto.TokenList {
-		pair, err := utils.GetTokenPair(dto.GetPriceURL, value)
+func getTokenPrice(list []*dto.TokenPair) []*dto.TokenPair{
+	for _, value := range list {
+		price, err := utils.GetTokenPair(dto.GetPriceURL, value.Symbol)
 		if err != nil {
 			fmt.Println(err)
 		}
-		if err := pair.PushPriceToSma(pair.Price); err != nil {
-			fmt.Println("cannot push price into sma")
+		value.Mtx.Lock()
+		defer value.Mtx.Unlock()
+		value.Price = price
+		value.PushPriceToSma(price)
+
+		fmt.Println(value.Symbol)
+		for _, val := range value.Sma10{
+			fmt.Printf("%f\n", val)
 		}
 	}
+	return list
 }

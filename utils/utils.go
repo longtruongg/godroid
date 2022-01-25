@@ -7,21 +7,22 @@ import (
 	"net/http"
 )
 
-func GetTokenPair(url string, token string) (pair *dto.TokenPair, err error){
+func GetTokenPair(url string, token string) (price string, err error){
+	pair := dto.TokenPair{}
 	result, err := http.Get(url + token)
 	if err != nil {
-		return  nil, err
+		return  "", err
 	}
 
 	body, err := ioutil.ReadAll(result.Body)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 	if err = json.Unmarshal(body, &pair); err != nil {
-		return nil, err
+		return "", err
 	}
 
-	return pair, nil
+	return pair.Price, nil
 }
 
 func CalculateSmaAvg(list []float64, num int) (smaAvg float64) {

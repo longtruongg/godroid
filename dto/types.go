@@ -1,6 +1,9 @@
 package dto
 
-import "strconv"
+import (
+	"strconv"
+	"sync"
+)
 
 type (
 	TokenPair struct {
@@ -10,14 +13,15 @@ type (
 		Sma10		[]float64
 		Sma5Avg		float64
 		Sma10Avg	float64
+		Mtx			sync.Mutex
 	}
 )
 
-func (pair *TokenPair) PushPriceToSma(price string) (err error) {
+func (pair *TokenPair) PushPriceToSma(price string) {
 	var priceFloat float64
-	if priceFloat, err = strconv.ParseFloat(price, 64); err != nil {
-		return err
-	}
+
+	priceFloat, _ = strconv.ParseFloat(price, 64)
+
 	if len(pair.Sma5) == 5 {
 		pair.Sma5 = pair.Sma5[1:]
 	}
@@ -26,5 +30,9 @@ func (pair *TokenPair) PushPriceToSma(price string) (err error) {
 	}
 	pair.Sma5 = append(pair.Sma5, priceFloat)
 	pair.Sma10 = append(pair.Sma10, priceFloat)
+}
+
+func (pair TokenPair)UpdatePrice(price string) error {
+	pair.Price = price
 	return nil
 }
